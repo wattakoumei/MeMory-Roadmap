@@ -1,0 +1,17 @@
+{
+  "name": "memory-roadmap",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "astro": "^5.0.0"
+  },
+  "packageManager": "pnpm@11.1.3"
+}

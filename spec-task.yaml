@@ -1,0 +1,684 @@
+# =============================================================================
+# MeMory Roadmap - プロジェクト仕様書
+# =============================================================================
+# このファイルは Claude Code への引き継ぎ用仕様書です。
+# - project: プロジェクト概要・前提情報
+# - specifications: 仕様詳細（データソース、ステータス、UI、デザイン等）
+# - tasks: 実装の流れ（assignee: user / claude-code / both）
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# Project: プロジェクト概要
+# -----------------------------------------------------------------------------
+project:
+  name: MeMory-Roadmap
+  description: MeMoryアプリの開発ロードマップを外部公開する静的サイト
+  domain: roadmap.memory.lovame-official.com
+  hosting: GitHub Pages（新規Publicリポジトリ）
+  framework: Astro (SSG)
+  language: 日本語のみ
+  page_structure: 1ページのみ（index）
+  brand_context:
+    parent_company: Lovaria（予定）
+    parent_brand: LovaMe（広報サイト: https://lovame-official.com/）
+    product: MeMory（推し活グッズ管理アプリ）
+    tone_and_manner: |
+      推し活ユーザー向け、ポジティブで親しみやすい。
+      「ときめき」を感じさせる表現、フェミニンでかわいらしいが、
+      ロードマップサイトとしては極めてミニマルなトーンを維持する。
+
+
+# -----------------------------------------------------------------------------
+# Specifications: 仕様詳細
+# -----------------------------------------------------------------------------
+specifications:
+
+  # ---------------------------------------------------------------------------
+  # データソース
+  # ---------------------------------------------------------------------------
+  data_source:
+    type: Notion API
+    notion_sdk: "@notionhq/client"
+
+    main_database:
+      role: メインタスクDB（既存・非公開）
+      filter:
+        property: 分類
+        type: select
+        value: ロードマップ
+        note: |
+          「分類」プロパティが "ロードマップ" のタスクのみを公開する。
+          他の分類値（大分類、やりたいこと、具体的な作業、ご意見・ご要望、バグ）は対象外。
+
+      displayed_properties:
+        title:
+          source: タイトル列（ページタイトル本体）
+          note: |
+            ※「ご意見・ご要望」プロパティではなく、ページのタイトル本体を使う。
+        status:
+          property_name: ステータス
+          type: status
+        last_edited_time:
+          source: Notion システムプロパティ "last_edited_time"
+          purpose: リリース済タスクのソートキーとして使用
+
+
+  # ---------------------------------------------------------------------------
+  # ステータスマッピング・表示順
+  # ---------------------------------------------------------------------------
+  status_mapping:
+    # Notion側ステータス名 → 公開時の日本語表記 + 色
+    # Archive は非表示（フィルタで除外）
+    display_order:
+      - notion_value: Backlog
+        display_label: 考え中
+        color: "#333333"
+      - notion_value: Ready
+        display_label: 次の開発
+        color: "#333388"
+      - notion_value: In Progress
+        display_label: 開発中
+        color: 薄いブルー（推定 #7DB3E8 程度、Claude designのパレットがあれば優先）
+      - notion_value: Review
+        display_label: リリース準備中
+        color: 薄いブルーと緑の中間（推定 #7DC8B8 程度、ティール系）
+      - notion_value: Done
+        display_label: リリース済
+        color: 薄いグリーン（推定 #88C99A 程度）
+
+    hidden_statuses:
+      - Archive
+
+    color_application:
+      target: ステータスセクションのタイトル文字色のみ
+      note: |
+        各セクションのタイトル（"考え中" 等）を上記カラーで着色する。
+        カード自体やドットには色を適用しない（モノクロ）。
+
+
+  # ---------------------------------------------------------------------------
+  # 完了タスク（リリース済）の表示ポリシー
+  # ---------------------------------------------------------------------------
+  released_section_policy:
+    sort_key: last_edited_time
+    sort_order: desc
+    initial_display_count: 20
+    overflow_behavior:
+      type: もっと見るボタン（インライン全件展開）
+      note: |
+        21件目以降は「もっと見る」ボタンで全件展開する（別ページ遷移なし）。
+        将来件数が膨大になった場合の対応は別途検討。
+
+
+  # ---------------------------------------------------------------------------
+  # UI / レイアウト
+  # ---------------------------------------------------------------------------
+  ui:
+    base_style: lovame-official.com の極端にミニマルなトーンを踏襲
+    primary_device: スマホ（モバイルファースト設計）
+    desktop_treatment: 中央寄せ、最大幅控えめ
+
+    layout_overview: |
+      上から順に:
+        1. ヘッダー: "MeMory Roadmap" タイトル（左寄せ or 中央、リンクなし）
+        2. ステータスセクション × 5（縦に積み上がる）
+           - セクションタイトル（指定色で着色）
+           - 各タスクのピル型カード（小さめ）が縦に並ぶ
+           - リリース済セクションのみ、20件超で「もっと見る」ボタン
+        3. フッター: コピーライト + 最終更新日時
+
+    components:
+      header:
+        title: MeMory Roadmap
+        links: なし
+        style: |
+          シンプルにタイトルのみ。装飾なし、余白広め。
+
+      status_section:
+        title_style: 指定された status_mapping の色で着色
+        card_style:
+          type: 小さめのピル型カード
+          shape: 角丸強め（border-radius を大きめに）
+          background: 白 or 極薄グレー（lovame-official のボタンを参考に縮小）
+          border: 細いライトグレー or なし
+          shadow: 極薄 or なし
+          padding: 小さめ（lovame-official のボタンより小ぶり）
+          content: タイトル文字列のみ（モノクロ）
+          decoration: ドット、アイコン等なし
+
+      more_button:
+        appears_in: リリース済セクション
+        condition: リリース済の件数 > 20
+        behavior: クリックで残り全件をインライン展開
+        style: lovame-official のボタンスタイルに準ずる（ただし小さめ）
+
+      footer:
+        content:
+          - "© {year} LovaMe"
+          - "最終更新: {build_timestamp}"
+        style: 中央寄せ、薄いグレー文字、小さめ
+        note: |
+          {year} はビルド時の年、{build_timestamp} はビルド実行時刻（JST表示推奨）。
+
+
+  # ---------------------------------------------------------------------------
+  # デザインシステム
+  # ---------------------------------------------------------------------------
+  design_system:
+    primary_source:
+      type: claude_design
+      url: https://api.anthropic.com/v1/design/h/ysNS-gVew5mwCyct3KSujg
+      fetch_instruction: |
+        Fetch this design file, read its readme, and implement the relevant aspects of the design.
+        https://api.anthropic.com/v1/design/h/ysNS-gVew5mwCyct3KSujg
+      note: |
+        Claude Code はプロジェクト初期化後、上記URLを fetch して
+        デザイントークン（カラー、タイポグラフィ、間隔、コンポーネントスタイル）を取り込むこと。
+
+    reference_site:
+      url: https://lovame-official.com/
+      visual_characteristics:
+        - 極めてミニマル、装飾を排除
+        - 白背景・モノクロベース、アクセントは控えめ
+        - ピル型ボタン/カード（強い角丸）
+        - 大きな余白、中央寄せレイアウト
+        - 区切り線は使わず余白で構造を示す
+        - 影は極薄
+        - セリフ体ロゴ + 太めセリフ見出し + 細めゴシック本文
+
+    status_color_priority: |
+      Claude design のパレットに「薄いブルー」「薄いグリーン」「薄いブルーと緑の中間」に
+      該当する色があれば、それを優先して使用する。
+      なければ status_mapping に記載の推定HEXを参考にClaude Code側で決定。
+
+
+  # ---------------------------------------------------------------------------
+  # ビルド & デプロイ
+  # ---------------------------------------------------------------------------
+  build_and_deploy:
+    build_strategy: SSG（静的サイト生成）
+    rationale: |
+      ビルド時にNotion APIを叩いてHTMLを生成。
+      ユーザーアクセス時はNotionに触れない（高速・APIキー漏洩リスクなし）。
+
+    update_trigger:
+      - type: schedule
+        cron: "0 0 * * *"  # 毎日 UTC 0時 = JST 9時
+      - type: workflow_dispatch
+        purpose: 手動トリガー（急ぎの更新用）
+
+    secrets_management:
+      strategy: GitHub Secrets
+      keys:
+        - name: NOTION_TOKEN
+          source: Notion Integration トークン
+        - name: NOTION_DATABASE_ID
+          source: メインタスクDBのID
+
+    notion_integration:
+      type: Internal
+      permissions: Read content のみ（最小権限）
+      connected_databases:
+        - メインタスクDB（他のDBには接続しない）
+
+
+# =============================================================================
+# Tasks: 実装の流れ
+# =============================================================================
+# 各タスクのフィールド:
+#   id          : タスクID
+#   title       : タイトル
+#   assignee    : user / claude-code / both
+#   blocking    : true なら このタスク完了まで次に進めない
+#   depends_on  : 前提タスクのリスト
+#   description : 何をするか
+#   steps       : 具体的な手順
+#   outputs     : 完了後に得られるもの
+#   notes       : 補足
+# =============================================================================
+tasks:
+
+  # ---------------------------------------------------------------------------
+  # Phase 0: Notion準備
+  # ---------------------------------------------------------------------------
+
+  - id: T01
+    title: Notion Integration を作成しトークンを取得
+    assignee: user
+    blocking: true
+    depends_on: []
+    description: |
+      Notion API にアクセスするためのInternalトークンを発行する。
+    steps:
+      - https://www.notion.so/profile/integrations にアクセス
+      - 「+ 新しいインテグレーション」をクリック
+      - 名前: "MeMory Roadmap"
+      - タイプ: Internal
+      - 関連ワークスペースを選択
+      - Capabilities: "Read content" のみチェック（最小権限）
+      - 作成後、表示される "Internal Integration Token" をコピー
+    outputs:
+      - NOTION_TOKEN（"secret_xxxxx..." の形式）
+    notes: |
+      トークンは後でGitHub Secretsとローカル .env に登録するので、
+      パスワードマネージャ等に一時保管しておく。
+
+  - id: T02
+    title: メインタスクDBに Integration を接続
+    assignee: user
+    blocking: true
+    depends_on: [T01]
+    description: |
+      作成したIntegrationを、対象のメインタスクDBに接続する。
+      接続しないとAPIから読み取れない。
+    steps:
+      - メインタスクDBをページとして開く
+      - 右上の "..." メニュー → "コネクション"
+      - "MeMory Roadmap" を検索して選択し接続
+    outputs:
+      - DBとIntegrationの接続完了
+
+  - id: T03
+    title: メインタスクDBのID を取得
+    assignee: user
+    blocking: true
+    depends_on: [T02]
+    description: |
+      メインタスクDBのIDをURLから抽出する。
+    steps:
+      - メインタスクDBをフルページで開く
+      - URLを確認: https://www.notion.so/{workspace}/{DB_ID}?v={view_id}
+      - {DB_ID} 部分（32文字のハイフン区切り or 連続文字列）をコピー
+    outputs:
+      - NOTION_DATABASE_ID
+
+  - id: T04
+    title: 公開対象タスクに「分類=ロードマップ」を設定
+    assignee: user
+    blocking: false
+    depends_on: [T03]
+    description: |
+      メインDB上で、公開ロードマップに載せたいタスクの "分類" プロパティを
+      "ロードマップ" に設定する。初期データを揃える作業。
+    steps:
+      - メインDBで公開したいタスクを選択
+      - "分類" プロパティを "ロードマップ" に変更
+      - 各ステータス（Backlog/Ready/In Progress/Review/Done）に
+        それぞれ最低1件設定しておくと、初回ビルド時に表示確認しやすい
+    outputs:
+      - 公開対象タスクの初期データ
+    notes: |
+      この作業は継続的に発生する（公開したいタスクが出るたび）。
+      初回は表示確認のため、各ステータス1件以上を推奨。
+
+
+  # ---------------------------------------------------------------------------
+  # Phase 1: リポジトリ初期化
+  # ---------------------------------------------------------------------------
+
+  - id: T05
+    title: GitHub に新規リポジトリを作成
+    assignee: user
+    blocking: true
+    depends_on: []
+    description: |
+      ロードマップサイト用の新規Publicリポジトリを作成する。
+    steps:
+      - GitHub で "New repository" を作成
+      - Repository name: "MeMory-Roadmap"
+      - Visibility: Public
+      - "Add a README file" にチェック
+      - .gitignore template: "Node"
+      - License: お好み（MIT等）
+    outputs:
+      - GitHubリポジトリURL（https://github.com/{username}/MeMory-Roadmap）
+
+  - id: T06
+    title: ローカルにcloneし、Claude Code を起動
+    assignee: user
+    blocking: true
+    depends_on: [T05]
+    description: |
+      リポジトリをローカルにcloneし、Claude Codeを起動して
+      この SPEC.yaml をルートに配置する。
+    steps:
+      - "git clone {リポジトリURL}"
+      - リポジトリディレクトリに移動
+      - この SPEC.yaml をリポジトリのルートに配置（コミット推奨）
+      - Claude Code を起動
+      - Claude Code に "SPEC.yaml に従って実装してください" と指示
+    outputs:
+      - ローカル作業ディレクトリ
+      - Claude Code が SPEC.yaml を読み込んだ状態
+
+
+  # ---------------------------------------------------------------------------
+  # Phase 2: 実装（Claude Code 中心）
+  # ---------------------------------------------------------------------------
+
+  - id: T07
+    title: Astro プロジェクトを初期化
+    assignee: claude-code
+    blocking: false
+    depends_on: [T06]
+    description: |
+      Astro の最小テンプレートでプロジェクトを初期化する。
+      パッケージマネージャは pnpm を使用する。
+    steps:
+      - "pnpm create astro@latest ." を実行
+      - テンプレート: 最小（Empty） or Minimal
+      - TypeScript: Yes（Strict推奨）
+      - Install dependencies: Yes（pnpmで）
+      - Initialize git: No（既にgit管理下のため）
+    outputs:
+      - Astroプロジェクト構造（src/, public/, astro.config.mjs 等）
+      - pnpm-lock.yaml
+    notes: |
+      パッケージマネージャは pnpm に統一する。
+      pnpm が未インストールなら "npm install -g pnpm" or Corepack で導入。
+
+  - id: T08
+    title: 依存パッケージをインストール
+    assignee: claude-code
+    blocking: false
+    depends_on: [T07]
+    description: |
+      Notion API クライアント等の必要パッケージを追加する。
+    steps:
+      - "pnpm add @notionhq/client"
+      - 必要に応じて型定義パッケージも追加（@types/* 等は pnpm add -D で）
+    outputs:
+      - package.json に依存追加
+      - pnpm-lock.yaml 更新
+
+  - id: T09
+    title: デザインシステムの取り込み
+    assignee: claude-code
+    blocking: false
+    depends_on: [T08]
+    description: |
+      Claude design URL を fetch してデザイントークンを取り込む。
+    steps:
+      - 以下のURL/指示に従って取り込み:
+          Fetch this design file, read its readme, and implement the relevant aspects of the design.
+          https://api.anthropic.com/v1/design/h/ysNS-gVew5mwCyct3KSujg
+      - 取得したトークン（カラー、タイポグラフィ、間隔等）を
+        Astroプロジェクトのスタイル定義に反映
+        （CSS変数 or Tailwind config、Claude designのreadmeに準拠）
+    outputs:
+      - デザイントークンが組み込まれた状態
+    notes: |
+      もし fetch できない場合、SPEC.yaml の specifications.ui と
+      specifications.design_system.reference_site の特徴を元に
+      lovame-official.com を踏襲したスタイルを構築する。
+
+  - id: T10
+    title: Notion API クライアントを実装
+    assignee: claude-code
+    blocking: false
+    depends_on: [T08]
+    description: |
+      メインDBから「分類=ロードマップ」のタスクを取得する関数を実装する。
+    steps:
+      - src/lib/notion.ts 等を作成
+      - @notionhq/client で Client を初期化
+      - databases.query で フィルタ "分類 = ロードマップ" を適用
+      - ページネーション対応（has_more / next_cursor）
+      - 各ページから タイトル、ステータス、last_edited_time を抽出
+      - 型定義（TypeScript Interface）を作成
+    outputs:
+      - データ取得関数（async function getRoadmapTasks(): Promise<Task[]>）
+    notes: |
+      環境変数 NOTION_TOKEN, NOTION_DATABASE_ID は process.env から取得。
+      ローカル開発用に .env サンプル（.env.example）を作成。
+
+  - id: T11
+    title: ステータスマッピング・ソート・フィルタロジックを実装
+    assignee: claude-code
+    blocking: false
+    depends_on: [T10]
+    description: |
+      取得したデータを、表示用に加工する。
+    steps:
+      - Archive ステータスを除外
+      - SPEC.yaml の status_mapping に従って日本語ラベル + 色をマッピング
+      - display_order の順に並べる
+      - リリース済（Done）は last_edited_time の降順でソート
+      - リリース済が20件超なら、初期表示用に上位20件と全件を別配列で持つ
+    outputs:
+      - 表示用に加工されたデータ構造
+
+  - id: T12
+    title: UIコンポーネント実装
+    assignee: claude-code
+    blocking: false
+    depends_on: [T09, T11]
+    description: |
+      仕様に沿った各UIコンポーネントを実装する。
+    steps:
+      - ヘッダー: "MeMory Roadmap" タイトルのみ
+      - ステータスセクション × 5（display_order の順）
+        - セクションタイトル（status_mapping の色で着色）
+        - 各タスクの小さめピル型カード
+      - リリース済セクションの「もっと見る」ボタン
+        - 初期は20件表示、クリックで全件展開（インライン）
+        - JavaScript で表示切り替え（軽量に）
+      - フッター: "© {year} LovaMe" + "最終更新: {build_timestamp}"
+    outputs:
+      - src/pages/index.astro 完成
+
+  - id: T13
+    title: モバイルファーストでレスポンシブ対応
+    assignee: claude-code
+    blocking: false
+    depends_on: [T12]
+    description: |
+      スマホ表示を基本とし、デスクトップは中央寄せ最大幅で対応する。
+    steps:
+      - 基本スタイルをモバイル向けに記述
+      - メディアクエリでデスクトップ時の最大幅と余白を調整
+      - viewport meta タグの設定確認
+    outputs:
+      - モバイル / デスクトップ両対応
+
+  - id: T14
+    title: ローカル動作確認
+    assignee: user
+    blocking: true
+    depends_on: [T13]
+    description: |
+      ローカル環境でNotionから取得したデータが表示されるか確認する。
+    steps:
+      - リポジトリルートに .env.local を作成し以下を記載:
+          NOTION_TOKEN={T01で取得した値}
+          NOTION_DATABASE_ID={T03で取得した値}
+      - .env.local が .gitignore に含まれていることを確認
+      - "pnpm dev" を実行
+      - http://localhost:4321 を開いて表示確認:
+          - 5つのステータスセクションが正しい順で表示されるか
+          - 各セクションタイトルが指定色になっているか
+          - カードがピル型で表示されているか
+          - リリース済が20件超なら「もっと見る」が出るか
+    outputs:
+      - 動作確認完了
+
+
+  # ---------------------------------------------------------------------------
+  # Phase 3: GitHub Actions / デプロイ設定
+  # ---------------------------------------------------------------------------
+
+  - id: T15
+    title: GitHub Actions ワークフローを作成
+    assignee: claude-code
+    blocking: false
+    depends_on: [T14]
+    description: |
+      cron + 手動トリガーでビルド&デプロイするワークフローを作成。
+      pnpm 対応の構成にすること。
+    steps:
+      - .github/workflows/build.yml を作成
+      - トリガー:
+          schedule: "- cron: '0 0 * * *'"
+          workflow_dispatch: {}
+          push: { branches: [main] }
+      - ジョブ:
+          1. actions/checkout
+          2. pnpm/action-setup（pnpm version は package.json の packageManager フィールド or workflow で指定）
+          3. actions/setup-node (version 20, cache: 'pnpm')
+          4. pnpm install --frozen-lockfile
+          5. pnpm build
+             - env: NOTION_TOKEN, NOTION_DATABASE_ID（secrets参照）
+          6. peaceiris/actions-gh-pages で dist/ を gh-pages ブランチへデプロイ
+    outputs:
+      - .github/workflows/build.yml
+    notes: |
+      package.json に "packageManager": "pnpm@x.y.z" を記載しておくと、
+      pnpm/action-setup がバージョンを自動検出する。
+
+  - id: T16
+    title: GitHub Secrets に環境変数を登録
+    assignee: user
+    blocking: true
+    depends_on: [T15]
+    description: |
+      ビルド時に必要な環境変数を GitHub Secrets に登録する。
+    steps:
+      - リポジトリの Settings → Secrets and variables → Actions
+      - "New repository secret" で以下を追加:
+          - Name: NOTION_TOKEN, Value: {T01の値}
+          - Name: NOTION_DATABASE_ID, Value: {T03の値}
+    outputs:
+      - GitHub Secrets 登録完了
+
+  - id: T17
+    title: GitHub Pages を有効化
+    assignee: user
+    blocking: true
+    depends_on: [T16]
+    description: |
+      gh-pages ブランチから配信されるよう設定する。
+    steps:
+      - リポジトリの Settings → Pages
+      - Source: "Deploy from a branch"
+      - Branch: gh-pages, Folder: / (root)
+      - Save
+    outputs:
+      - GitHub Pages 有効化（デフォルトURL: https://{username}.github.io/MeMory-Roadmap/）
+
+  - id: T18
+    title: 初回ビルド実行と動作確認
+    assignee: user
+    blocking: true
+    depends_on: [T17]
+    description: |
+      mainブランチへのpushでGitHub Actionsを発火させ、初回デプロイを確認。
+    steps:
+      - mainブランチへpush（or "Run workflow" で手動実行）
+      - Actions タブでビルドが成功するか確認
+      - 完了後、https://{username}.github.io/MeMory-Roadmap/ にアクセスして表示確認
+    outputs:
+      - GitHub Pages デフォルトURL で公開状態
+
+
+  # ---------------------------------------------------------------------------
+  # Phase 4: カスタムドメイン設定
+  # ---------------------------------------------------------------------------
+
+  - id: T19
+    title: CNAME ファイルを配置
+    assignee: claude-code
+    blocking: false
+    depends_on: [T18]
+    description: |
+      GitHub Pages がカスタムドメインを認識するための CNAME ファイルを追加。
+    steps:
+      - public/CNAME を作成し、内容に "roadmap.memory.lovame-official.com" のみ記載
+      - コミット&プッシュ
+    outputs:
+      - public/CNAME
+
+  - id: T20
+    title: お名前.com で DNS CNAME レコードを追加
+    assignee: user
+    blocking: true
+    depends_on: [T19]
+    description: |
+      サブドメインをGitHub Pagesに向けるDNS設定。
+    steps:
+      - お名前.com管理画面にログイン
+      - "ドメイン" → lovame-official.com を選択
+      - "DNS設定" → DNSレコード設定
+      - 以下を追加:
+          - ホスト名: roadmap.memory
+          - TYPE: CNAME
+          - VALUE: {GitHubユーザー名}.github.io
+          - TTL: 3600
+      - 確認画面に進み登録
+    outputs:
+      - DNS設定完了
+    notes: |
+      DNS浸透に数分〜数時間かかる場合あり。
+
+  - id: T21
+    title: GitHub Pages カスタムドメインを設定
+    assignee: user
+    blocking: true
+    depends_on: [T20]
+    description: |
+      GitHub Pages の設定画面でカスタムドメインを入力し、HTTPSを有効化。
+    steps:
+      - リポジトリの Settings → Pages
+      - Custom domain に "roadmap.memory.lovame-official.com" を入力
+      - Save
+      - DNS Check が成功するまで待つ（数分〜数時間）
+      - HTTPS証明書（Let's Encrypt）が発行されたら "Enforce HTTPS" をオン
+    outputs:
+      - カスタムドメインで HTTPS 配信可能
+
+
+  # ---------------------------------------------------------------------------
+  # Phase 5: 公開・運用確認
+  # ---------------------------------------------------------------------------
+
+  - id: T22
+    title: 本番URLで最終確認
+    assignee: user
+    blocking: false
+    depends_on: [T21]
+    description: |
+      正式URLで表示・レスポンシブを確認する。
+    steps:
+      - https://roadmap.memory.lovame-official.com にアクセス
+      - 5セクションが順番通り表示されているか
+      - ステータス色が正しく出ているか
+      - スマホ・PC両方で確認
+      - リリース済の「もっと見る」が動作するか
+    outputs:
+      - 公開状態の最終確認
+
+  - id: T23
+    title: 更新フローの動作確認
+    assignee: user
+    blocking: false
+    depends_on: [T22]
+    description: |
+      Notion側の変更がサイトに反映されるか確認する。
+    steps:
+      - Notion で何らかのタスクのステータスを変更（例: Backlog → Ready）
+      - GitHub Actions の "Run workflow" を手動実行
+      - 完了後、サイトに変更が反映されているか確認
+      - cron も動作することを翌日確認
+    outputs:
+      - 更新フロー確認完了
+    notes: |
+      以降の運用では、Notionで「分類=ロードマップ」設定&ステータス更新を行い、
+      cron（毎日JST9時）で自動反映される。急ぎは手動トリガー。
+
+
+# =============================================================================
+# 参考: タスク担当の集計
+# =============================================================================
+# user: 14タスク（T01-T06, T14, T16-T18, T20-T23）
+# claude-code: 9タスク（T07-T13, T15, T19）
+# =============================================================================
