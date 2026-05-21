@@ -1,4 +1,6 @@
 import { Client, isFullPage } from "@notionhq/client";
+import type { QueryDatabaseResponse } from "@notionhq/client/build/src/api-endpoints";
+import { getServerEnv } from "./server-env";
 
 export interface RoadmapTask {
   id: string;
@@ -8,8 +10,8 @@ export interface RoadmapTask {
 }
 
 export async function getRoadmapTasks(): Promise<RoadmapTask[]> {
-  const auth = import.meta.env.NOTION_TOKEN ?? process.env.NOTION_TOKEN;
-  const databaseId = import.meta.env.NOTION_DATABASE_ID ?? process.env.NOTION_DATABASE_ID;
+  const auth = getServerEnv("NOTION_TOKEN");
+  const databaseId = getServerEnv("NOTION_DATABASE_ID");
 
   if (!auth || !databaseId) {
     console.warn("NOTION_TOKEN or NOTION_DATABASE_ID is not set");
@@ -21,14 +23,19 @@ export async function getRoadmapTasks(): Promise<RoadmapTask[]> {
   let cursor: string | undefined;
 
   do {
-    const response = await notion.databases.query({
-      database_id: databaseId,
-      filter: {
-        property: "分類",
-        select: { equals: "ロードマップ" },
-      },
-      start_cursor: cursor,
-    });
+    let response: QueryDatabaseResponse;
+    try {
+      response = await notion.databases.query({
+        database_id: databaseId,
+        filter: {
+          property: "分類",
+          select: { equals: "ロードマップ" },
+        },
+        start_cursor: cursor,
+      });
+    } catch {
+      throw new Error("Failed to fetch roadmap tasks from Notion");
+    }
 
     for (const page of response.results) {
       if (!isFullPage(page)) continue;
