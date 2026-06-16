@@ -1,10 +1,15 @@
 ---
 import { getRoadmapTasks } from '../lib/notion';
+import { applyNewFlags } from '../lib/snapshot';
 import { processRoadmapTasks } from '../lib/roadmap';
 import '../styles/global.css';
 
-const tasks = await getRoadmapTasks();
+const rawTasks = await getRoadmapTasks();
+// 本番ビルド時のみスナップショットを更新する（dev では比較のみで書き込まない）
+const { tasks, statusUpdatedAt } = applyNewFlags(rawTasks, import.meta.env.PROD);
 const sections = processRoadmapTasks(tasks);
+
+const statusUpdatedLabel = statusUpdatedAt?.replaceAll('-', '/');
 
 const now = new Date();
 const buildTime = now.toLocaleString('ja-JP', {
@@ -48,7 +53,10 @@ const year = now.getFullYear();
               ) : (
                 <ul class="task-list">
                   {section.initialTasks.map((task) => (
-                    <li class="task-card">{task.title}</li>
+                    <li class="task-card">
+                      <span class="task-title">{task.title}</span>
+                      {task.isNew && <span class="badge-new">New</span>}
+                    </li>
                   ))}
                 </ul>
               )}
@@ -57,7 +65,10 @@ const year = now.getFullYear();
                 <Fragment>
                   <ul class="task-list extra-tasks" id={extraId}>
                     {section.extraTasks.map((task) => (
-                      <li class="task-card">{task.title}</li>
+                      <li class="task-card">
+                        <span class="task-title">{task.title}</span>
+                        {task.isNew && <span class="badge-new">New</span>}
+                      </li>
                     ))}
                   </ul>
                   <button class="more-btn" data-target={extraId}>
@@ -73,6 +84,7 @@ const year = now.getFullYear();
 
     <footer class="site-footer">
       <p>© {year} LovaMe</p>
+      {statusUpdatedLabel && <p>ステータス更新日: {statusUpdatedLabel}</p>}
       <p>最終更新: {buildTime}</p>
     </footer>
 

@@ -7,6 +7,8 @@ export interface RoadmapTask {
   title: string;
   status: string;
   lastEditedTime: string;
+  /** 前回ビルドからステータスが変わった（または新規追加された）場合に true。snapshot.ts で付与 */
+  isNew?: boolean;
 }
 
 export async function getRoadmapTasks(): Promise<RoadmapTask[]> {
