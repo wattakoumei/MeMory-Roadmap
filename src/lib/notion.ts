@@ -28,19 +28,27 @@ export async function getRoadmapTasks(): Promise<RoadmapTask[]> {
 
   do {
     let response: QueryDatabaseResponse;
-    try {
-      response = await notion.databases.query({
-        database_id: databaseId,
-        filter: {
-          property: "分類",
-          select: { equals: "ロードマップ" },
-        },
-        start_cursor: cursor,
-      });
-    } catch (e) {
-      console.warn(
-        `Notion API request failed (${describeNotionError(e)}); falling back to snapshot.`
-      );
+    let lastError: unknown;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        response = await notion.databases.query({
+          database_id: databaseId,
+          filter: {
+            property: "分類",
+            select: { equals: "ロードマップ" },
+          },
+          start_cursor: cursor,
+        });
+        lastError = undefined;
+        break;
+      } catch (e) {
+        lastError = e;
+        console.warn(`Notion API attempt ${attempt + 1}/3 failed (${describeNotionError(e)})`);
+        if (attempt < 2) await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+      }
+    }
+    if (lastError) {
+      console.warn("All retries exhausted; falling back to snapshot.");
       return loadTasksFromSnapshot();
     }
 
