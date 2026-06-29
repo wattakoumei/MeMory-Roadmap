@@ -20,7 +20,7 @@ export async function getRoadmapTasks(): Promise<RoadmapTask[]> {
     return [];
   }
 
-  const notion = new Client({ auth });
+  const notion = new Client({ auth, fetch: globalThis.fetch });
   const tasks: RoadmapTask[] = [];
   let cursor: string | undefined;
 
