@@ -26,17 +26,27 @@ export async function getRoadmapTasks(): Promise<RoadmapTask[]> {
 
   do {
     let response: QueryDatabaseResponse;
-    try {
-      response = await notion.databases.query({
-        database_id: databaseId,
-        filter: {
-          property: "分類",
-          select: { equals: "ロードマップ" },
-        },
-        start_cursor: cursor,
-      });
-    } catch (e) {
-      throw new Error(`Failed to fetch roadmap tasks from Notion: ${e instanceof Error ? e.message : e}`);
+    let lastError: unknown;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        response = await notion.databases.query({
+          database_id: databaseId,
+          filter: {
+            property: "分類",
+            select: { equals: "ロードマップ" },
+          },
+          start_cursor: cursor,
+        });
+        lastError = undefined;
+        break;
+      } catch (e) {
+        lastError = e;
+        console.warn(`Notion API attempt ${attempt + 1}/3 failed: ${e instanceof Error ? e.message : e}`);
+        if (attempt < 2) await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+      }
+    }
+    if (lastError) {
+      throw new Error(`Failed to fetch roadmap tasks from Notion after 3 attempts: ${lastError instanceof Error ? lastError.message : lastError}`);
     }
 
     for (const page of response.results) {
