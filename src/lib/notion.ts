@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { Client, isFullPage } from "@notionhq/client";
 import type { QueryDatabaseResponse } from "@notionhq/client/build/src/api-endpoints";
 import { getServerEnv } from "./server-env";
@@ -35,8 +37,11 @@ export async function getRoadmapTasks(): Promise<RoadmapTask[]> {
         },
         start_cursor: cursor,
       });
-    } catch {
-      throw new Error("Failed to fetch roadmap tasks from Notion");
+    } catch (e) {
+      console.warn(
+        `Notion API request failed (${describeNotionError(e)}); falling back to snapshot.`
+      );
+      return loadTasksFromSnapshot();
     }
 
     for (const page of response.results) {
@@ -70,4 +75,55 @@ export async function getRoadmapTasks(): Promise<RoadmapTask[]> {
   } while (cursor);
 
   return tasks;
+}
+
+function loadTasksFromSnapshot(): RoadmapTask[] {
+  const snapshotPath = resolve(process.cwd(), "data/roadmap-snapshot.json");
+  if (!existsSync(snapshotPath)) return [];
+  try {
+    const data = JSON.parse(readFileSync(snapshotPath, "utf8"));
+    return Object.entries(data.tasks ?? {}).map(([id, entry]: [string, any]) => ({
+      id,
+      title: entry.title ?? "",
+      status: entry.status ?? "Backlog",
+      lastEditedTime: entry.lastEditedTime ?? "",
+    }));
+  } catch {
+    return [];
+  }
+}
+
+function describeNotionError(error: unknown): string {
+  if (!error || typeof error !== "object") return String(error);
+
+  const detail = error as {
+    code?: string;
+    errno?: string;
+    message?: string;
+    name?: string;
+    status?: number;
+  };
+
+  return [
+    detail.name,
+    detail.status ? `status=${detail.status}` : undefined,
+    detail.code ? `code=${detail.code}` : undefined,
+    detail.errno ? `errno=${detail.errno}` : undefined,
+    redactNotionIdentifiers(detail.message),
+  ]
+    .filter(Boolean)
+    .join("; ");
+}
+
+function redactNotionIdentifiers(message: string | undefined): string | undefined {
+  return message
+    ?.replace(
+      /https:\/\/api\.notion\.com\/v1\/databases\/[^/\s]+\/query/g,
+      "https://api.notion.com/v1/databases/[database_id]/query"
+    )
+    .replace(/\b[0-9a-f]{32}\b/gi, "[notion_id]")
+    .replace(
+      /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi,
+      "[notion_id]"
+    );
 }

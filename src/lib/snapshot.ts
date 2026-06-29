@@ -5,6 +5,7 @@ import type { RoadmapTask } from "./notion";
 const SNAPSHOT_PATH = resolve(process.cwd(), "data/roadmap-snapshot.json");
 
 interface SnapshotEntry {
+  title: string;
   status: string;
   isNew: boolean;
 }
@@ -89,7 +90,7 @@ export function applyNewFlags(
     const next: Snapshot = {
       statusUpdatedAt: statusUpdatedAt ?? todayJst(),
       tasks: Object.fromEntries(
-        flagged.map((t) => [t.id, { status: t.status, isNew: t.isNew ?? false }])
+        flagged.map((t) => [t.id, { title: t.title, status: t.status, isNew: t.isNew ?? false }])
       ),
     };
     writeSnapshot(next);

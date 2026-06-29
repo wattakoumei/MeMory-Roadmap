@@ -1,103 +1,128 @@
 {
-  "statusUpdatedAt": "2026-06-17",
+  "statusUpdatedAt": "2026-06-30",
   "tasks": {
     "3819a678-992c-8022-878e-eb57fee51b03": {
-      "status": "Review",
-      "isNew": false
+      "title": "右下のボタンからページ管理画面に飛べるようにしたい",
+      "status": "Done",
+      "isNew": true
     },
     "37c9a678-992c-8029-95b3-fd38510d8298": {
+      "title": "初回起動時の簡単な説明画面が欲しい",
       "status": "In Progress",
       "isNew": true
     },
     "3799a678-992c-80f9-88e9-c4d7523685e3": {
+      "title": "未来購入日のカウントダウン",
       "status": "Backlog",
       "isNew": false
     },
     "3799a678-992c-804f-af87-f56a36f7f427": {
+      "title": "写真の複数登録",
       "status": "Backlog",
       "isNew": false
     },
     "3799a678-992c-803d-8d5b-e4241d8131e6": {
-      "status": "Review",
-      "isNew": false
+      "title": "カテゴリ管理画面で並び替え",
+      "status": "Done",
+      "isNew": true
     },
     "3799a678-992c-8054-8011-d8dcea08520e": {
+      "title": "写真を表示する機能がほしい",
       "status": "Backlog",
       "isNew": false
     },
     "3799a678-992c-80c0-b137-e1cb3edbad3a": {
-      "status": "Review",
-      "isNew": false
+      "title": "ページの並べ替えができるようにしたい",
+      "status": "Done",
+      "isNew": true
     },
     "3749a678-992c-806c-af10-f721220b62b3": {
+      "title": "メモでコピーできるようにする",
       "status": "Done",
       "isNew": false
     },
     "3739a678-992c-803d-b310-f6ba8aec231a": {
+      "title": "長押しで編集モードに入った時にスクロールが飛ぶことがある",
       "status": "Done",
       "isNew": false
     },
     "36a9a678-992c-80a1-88db-f5a7258502c5": {
+      "title": "アイテム追加・編集画面で入力中に間違えて閉じてしまう",
       "status": "Done",
       "isNew": false
     },
     "36a9a678-992c-8040-a14e-f7957db9b2e2": {
+      "title": "アイテム編集で画像を変えないと背景透過されない",
       "status": "Done",
       "isNew": false
     },
     "3679a678-992c-8054-80ff-e0503c0c6f9c": {
+      "title": "並び替えのメニューバーをすぐ閉じないようにしたい",
       "status": "Done",
       "isNew": false
     },
     "3679a678-992c-8033-9084-cdc3846f4395": {
+      "title": "iCloud同期の不具合解消",
       "status": "Done",
       "isNew": false
     },
     "3679a678-992c-8045-a232-d87013c798bc": {
+      "title": "カラーパレット導入して自由に色設定できるようにしたい",
       "status": "Done",
       "isNew": false
     },
     "3679a678-992c-8076-81a9-e4377b8274de": {
+      "title": "カテゴリの並び替え操作性の向上",
       "status": "Backlog",
       "isNew": false
     },
     "3669a678-992c-8066-8fb4-f8056155325c": {
+      "title": "開発ロードマップ",
       "status": "Done",
       "isNew": false
     },
     "3669a678-992c-80d1-bd05-d1201ae5350b": {
+      "title": "手動のアイテム並び替えがたまに失敗する",
       "status": "Done",
       "isNew": false
     },
     "3669a678-992c-80f3-9f33-e57b449e2e46": {
+      "title": "アイテムを購入日順で並び替え",
       "status": "Done",
       "isNew": false
     },
     "3669a678-992c-802f-8dd5-eea068faf2f8": {
+      "title": "アイテムを数量順で並び替え",
       "status": "Done",
       "isNew": false
     },
     "3669a678-992c-8033-bd1a-f041136be5cd": {
+      "title": "アイテムを登録日順で並び替え",
       "status": "Done",
       "isNew": false
     },
     "3669a678-992c-80b2-a6ec-c0cb95ab752b": {
+      "title": "カテゴリを閉じたり開いたりできるようにする",
       "status": "Done",
       "isNew": false
     },
     "3649a678-992c-8082-9abc-c6e849eefac4": {
+      "title": "一覧で見る際の画像の表示サイズ変更",
       "status": "Backlog",
       "isNew": false
     },
     "3649a678-992c-801a-9bde-fc5f182744ce": {
+      "title": "購入時期を記録できるようにする",
       "status": "Done",
       "isNew": false
     },
     "3649a678-992c-8052-8e61-c2efba96a679": {
+      "title": "画像保存時の位置調整・拡大の自由度を上げる",
       "status": "Done",
       "isNew": false
     },
     "2f29a678-992c-80c5-8ca6-f7bd0559691f": {
+      "title": "Xへの投稿ができるようにしたい",
       "status": "Done",
       "isNew": false
     }
