@@ -1,5 +1,5 @@
 {
-  "statusUpdatedAt": "2026-08-02",
+  "statusUpdatedAt": "2026-08-07",
   "tasks": {
     "3aa9a678-992c-809a-abe6-c220bda46e34": {
       "status": "Ready",
@@ -10,7 +10,7 @@
       "isNew": true
     },
     "3a89a678-992c-8099-b928-c17e7febfba5": {
-      "status": "In Progress",
+      "status": "Review",
       "isNew": true
     },
     "3819a678-992c-8022-878e-eb57fee51b03": {
