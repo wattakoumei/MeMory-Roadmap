@@ -1,12 +1,20 @@
 {
-  "statusUpdatedAt": "2026-08-07",
+  "statusUpdatedAt": "2026-08-08",
   "tasks": {
+    "3b59a678-992c-8059-856a-cd9a67584b3f": {
+      "status": "Backlog",
+      "isNew": true
+    },
+    "3b59a678-992c-80d2-a61d-e52ce8d40552": {
+      "status": "Review",
+      "isNew": true
+    },
     "3aa9a678-992c-809a-abe6-c220bda46e34": {
       "status": "Ready",
       "isNew": true
     },
     "3aa9a678-992c-80b8-a0ce-d1ea69e83708": {
-      "status": "In Progress",
+      "status": "Review",
       "isNew": true
     },
     "3a89a678-992c-8099-b928-c17e7febfba5": {
