@@ -1,16 +1,20 @@
 {
-  "statusUpdatedAt": "2026-08-11",
+  "statusUpdatedAt": "2026-08-13",
   "tasks": {
+    "3ba9a678-992c-80d0-92bc-d3ddd3fbe755": {
+      "status": "Ready",
+      "isNew": true
+    },
     "3b89a678-992c-80eb-b4a0-d6eadba54377": {
-      "status": "In Progress",
+      "status": "Done",
       "isNew": true
     },
     "3b89a678-992c-8095-b361-d99e85507dcc": {
-      "status": "Review",
+      "status": "Done",
       "isNew": true
     },
     "3b89a678-992c-8045-8de1-e8c8c8ecd588": {
-      "status": "Review",
+      "status": "Done",
       "isNew": true
     },
     "3b69a678-992c-8095-9188-de94809452fe": {
@@ -22,27 +26,27 @@
       "isNew": true
     },
     "3b69a678-992c-8072-9161-e91513b61eb8": {
-      "status": "Review",
+      "status": "Done",
       "isNew": true
     },
     "3b59a678-992c-8059-856a-cd9a67584b3f": {
-      "status": "Backlog",
+      "status": "Ready",
       "isNew": true
     },
     "3b59a678-992c-80d2-a61d-e52ce8d40552": {
-      "status": "Review",
+      "status": "Done",
       "isNew": true
     },
     "3aa9a678-992c-809a-abe6-c220bda46e34": {
-      "status": "Review",
+      "status": "Done",
       "isNew": true
     },
     "3aa9a678-992c-80b8-a0ce-d1ea69e83708": {
-      "status": "Review",
+      "status": "Done",
       "isNew": true
     },
     "3a89a678-992c-8099-b928-c17e7febfba5": {
-      "status": "Review",
+      "status": "Done",
       "isNew": true
     },
     "3819a678-992c-8022-878e-eb57fee51b03": {
