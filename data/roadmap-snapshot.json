@@ -1,8 +1,8 @@
 {
-  "statusUpdatedAt": "2026-08-23",
+  "statusUpdatedAt": "2026-08-25",
   "tasks": {
     "3c49a678-992c-8051-aa3b-caee6983c6b7": {
-      "status": "Review",
+      "status": "Done",
       "isNew": true
     },
     "3bb9a678-992c-803a-80cb-d6fa90dd9df1": {
@@ -10,7 +10,7 @@
       "isNew": true
     },
     "3ba9a678-992c-80d0-92bc-d3ddd3fbe755": {
-      "status": "Review",
+      "status": "Done",
       "isNew": true
     },
     "3b89a678-992c-80eb-b4a0-d6eadba54377": {
@@ -38,7 +38,7 @@
       "isNew": true
     },
     "3b59a678-992c-8059-856a-cd9a67584b3f": {
-      "status": "Ready",
+      "status": "Done",
       "isNew": true
     },
     "3b59a678-992c-80d2-a61d-e52ce8d40552": {
