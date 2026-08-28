@@ -1,5 +1,5 @@
 {
-  "statusUpdatedAt": "2026-08-27",
+  "statusUpdatedAt": "2026-08-28",
   "tasks": {
     "3c89a678-992c-80f7-809d-c9b2bf5b7631": {
       "status": "In Progress",
@@ -22,7 +22,7 @@
       "isNew": true
     },
     "3c89a678-992c-80f8-8602-ef3a3a51a8f7": {
-      "status": "Backlog",
+      "status": "In Progress",
       "isNew": true
     },
     "3c89a678-992c-80a3-980a-cfd5ffddd86f": {
@@ -170,7 +170,7 @@
       "isNew": false
     },
     "3649a678-992c-8082-9abc-c6e849eefac4": {
-      "status": "Ready",
+      "status": "In Progress",
       "isNew": true
     },
     "3649a678-992c-801a-9bde-fc5f182744ce": {
