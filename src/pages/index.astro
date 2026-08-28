@@ -1,26 +1,7 @@
 ---
-import { getRoadmapTasks } from '../lib/notion';
-import { applyNewFlags } from '../lib/snapshot';
-import { processRoadmapTasks } from '../lib/roadmap';
 import '../styles/global.css';
 
-const rawTasks = await getRoadmapTasks();
-// 本番ビルド時のみスナップショットを更新する（dev では比較のみで書き込まない）
-const { tasks, statusUpdatedAt } = applyNewFlags(rawTasks, import.meta.env.PROD);
-const sections = processRoadmapTasks(tasks);
-
-const statusUpdatedLabel = statusUpdatedAt?.replaceAll('-', '/');
-
-const now = new Date();
-const buildTime = now.toLocaleString('ja-JP', {
-  timeZone: 'Asia/Tokyo',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-});
-const year = now.getFullYear();
+const year = 2026;
 ---
 
 <!doctype html>
@@ -28,78 +9,33 @@ const year = now.getFullYear();
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="MeMory アプリの開発ロードマップ" />
+    <meta name="description" content="MeMory 開発ロードマップの公開終了について" />
     <title>MeMory Roadmap</title>
   </head>
   <body>
-    <header class="site-header">
-      <div class="container">
-        <h1 class="site-title">MeMory Roadmap</h1>
-      </div>
-    </header>
-
     <main>
-      <div class="container">
-        {sections.map((section) => {
-          const extraId = `extra-${section.notion.replace(/\s+/g, '-')}`;
-          return (
-            <section class="section">
-              <h2 class="section-title" style={`color: ${section.color}`}>
-                {section.label}
-              </h2>
+      <div class="container notice">
+        <h1 class="site-title">MeMory Roadmap</h1>
 
-              {section.initialTasks.length === 0 && !section.hasMore ? (
-                <p class="empty-note">現在このステータスのタスクはありません</p>
-              ) : (
-                <ul class="task-list">
-                  {section.initialTasks.map((task) => (
-                    <li class="task-card">
-                      <span class="task-title">{task.title}</span>
-                      {task.isNew && <span class="badge-new">New</span>}
-                    </li>
-                  ))}
-                </ul>
-              )}
+        <h2 class="notice-heading">【お知らせ】開発ロードマップの公開終了について</h2>
 
-              {section.hasMore && (
-                <Fragment>
-                  <ul class="task-list extra-tasks" id={extraId}>
-                    {section.extraTasks.map((task) => (
-                      <li class="task-card">
-                        <span class="task-title">{task.title}</span>
-                        {task.isNew && <span class="badge-new">New</span>}
-                      </li>
-                    ))}
-                  </ul>
-                  <button class="more-btn" data-target={extraId}>
-                    もっと見る（あと{section.extraTasks.length}件）
-                  </button>
-                </Fragment>
-              )}
-            </section>
-          );
-        })}
+        <div class="notice-body">
+          <p>いつもMeMoryをご利用いただきありがとうございます！</p>
+          <p>開発ロードマップの公開を、8月29日をもって終了いたします。</p>
+          <p>
+            ロードマップ更新にかける時間をアプリの改善に回したいことが大きな理由です。<br />
+            開発を止めるものではありませんのでご心配なく！
+          </p>
+          <p>
+            ご要望は引き続きお待ちしています。<br />
+            次のアップデートを、どうぞお楽しみに！
+          </p>
+        </div>
       </div>
     </main>
 
     <footer class="site-footer">
       <p>© {year} LovaMe</p>
-      {statusUpdatedLabel && <p>ステータス更新日: {statusUpdatedLabel}</p>}
-      <p>最終更新: {buildTime}</p>
     </footer>
-
-    <script>
-      document.querySelectorAll('.more-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const targetId = btn.getAttribute('data-target');
-          if (!targetId) return;
-          const target = document.getElementById(targetId);
-          if (target) {
-            target.classList.remove('extra-tasks');
-            btn.remove();
-          }
-        });
-      });
-    </script>
   </body>
 </html>
